@@ -6,8 +6,6 @@ def preferential_attachment_score(graph):
     i_degree = np.zeros(A.shape[0])
     for i in range(A.shape[0]):
         i_degree[i] = len(graph.neighbors(i))
-        # If we want outdegree instead of total degree:
-        #i_degree[i] = graph.vs[i].outdegree()
     PA = np.zeros(A.shape)
     for i in range(PA.shape[0]):
         for j in range(PA.shape[0]):
