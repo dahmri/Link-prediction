@@ -27,7 +27,7 @@ data1 = sc.textFile(Data)
 trainData = data1.map(parsePoint)
 
 trainData.persist()
-print "We start training"
+print ("We start training")
 #model = SVMWithSGD.train(trainData, iterations=1)
 model = LogisticRegressionWithSGD.train(trainData,1)
 model.clearThreshold()
@@ -37,9 +37,9 @@ Test="DataFTrainTest/dtest_Trades_Network.csv"
 data2 = sc.textFile(Test)
 testData = data2.map(parsePoint)
 
-print "We start testing"
-scoreAndLabels = testData.map(lambda p: (float(model.predict(p.features)), p.label))
+print ("We start testing")
+score = testData.map(lambda p: (float(model.predict(p.features)), p.label))
 
-metrics = BinaryClassificationMetrics(scoreAndLabels)
-print "areaUnderROC ",metrics.areaUnderROC
-print "areaUnderPR  ",metrics.areaUnderPR
+metrics = BinaryClassificationMetrics(score)
+print ("areaUnderROC ",metrics.areaUnderROC)
+print ("areaUnderPR  ",metrics.areaUnderPR)
