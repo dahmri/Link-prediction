@@ -33,9 +33,7 @@ model = LogisticRegressionWithSGD.train(trainData,1)
 model.clearThreshold()
 
 
-#Test="DataFTrainTest/dtest_Trades_Network.csv"
-#Test="DataFTrainTest/dtest_attacks_Network.csv"
-Test="DataFTrainTest/dtest_messages_Network.csv"
+Test="DataFTrainTest/dtest_Trades_Network.csv"
 data2 = sc.textFile(Test)
 testData = data2.map(parsePoint)
 
