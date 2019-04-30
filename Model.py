@@ -41,5 +41,5 @@ print ("We start testing")
 score = testData.map(lambda p: (float(model.predict(p.features)), p.label))
 
 metrics = BinaryClassificationMetrics(score)
-print ("areaUnderROC ",metrics.areaUnderROC)
-print ("areaUnderPR  ",metrics.areaUnderPR)
+print ("areaUnderROC ", metrics.areaUnderROC)
+print ("areaUnderPR  ", metrics.areaUnderPR)
