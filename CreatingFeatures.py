@@ -1,61 +1,52 @@
-import igraph 
+import igraph
+from igraph import Graph
 import networkx as nx
-from Graph_Operations import *
-import Adamic_Adar
-import Jaccard_Coefficient
-import Common_Neighbors
-import  Preferential_Attachment
-import Shortest_Path
-import Betweenness_Centrality
+import NetworkFeatures
 from sklearn import preprocessing
 from numpy import *
+import pandas as pd
 import random
 from random import randint
+from sklearn.model_selection import train_test_split
 
 
-def CreateFeatureMatrix(graph,date):
+def FeatureMatrix(graph, date):
 
-    # Calculate Adamic-Adar matrix
     AAMatrix = []
-    AAMatrix = Adamic_Adar.adamic_adar_score(graph)
+    AAMatrix = NetworkFeatures.adamic_adar_score(graph)
 
-    # Calculate Jaccard Coefficient matrix
     JCMatrix = []
-    CMatrix = Jaccard_Coefficient.jaccard_coefficient_score(graph)
+    JCMatrix = NetworkFeatures.jaccard_coefficient_score(graph)
 
-    # Calculate Common Neighbors matrix
     CNMatrix = []
-    CNMatrix = Common_Neighbors.common_neighbors_score(graph)
+    CNMatrix = NetworkFeatures.common_neighbors_score(graph)
 
-    # Calculate Preferential Attachment matrix
     PAMatrix = []
-    PAMatrix = Preferential_Attachment.preferential_attachment_score(graph)
+    PAMatrix = NetworkFeatures.preferential_attachment_score(graph)
 
-    # Calculate Shortest Path matrix
     SPMatrix = []
-    SPMatrix = Shortest_Path.shortest_path(graph)
+    SPMatrix = NetworkFeatures.shortest_path(graph)
 
-    # Calculate Betweenness Centrality
     betweenness = []
-    betweenness = Betweenness_Centrality.betweenness_centrality_score(graph)
+    betweenness = NetworkFeatures.betweenness_centrality_score(graph)
 
-    # Time Series Daily Rate Forecasting
     dailyRate = []
-    dailyRate= WeightMovingAverageTimeSeriesRate(graph,date)
+    dailyRate = WeightMovingAverageTimeSeriesRate(graph, date)
 
-    return AAMatrix,JCMatrix,CNMatrix,PAMatrix,SPMatrix,betweenness,dailyRate
 
-def CreateFeatureVector(node1,node2,AAMatrix,JCMatrix,CNMatrix,PAMatrix,SPMatrix,betweenness,dailyRate):
+    return AAMatrix, JCMatrix, CNMatrix, PAMatrix, SPMatrix, betweenness, dailyRate
+
+def FeatureVector(nodei, nodej, AAMatrix, JCMatrix, CNMatrix, PAMatrix, SPMatrix, betweenness, dailyRate):
 
     feature_vector = ""
 
-    feature_vector += str(AAMatrix[node1][node2]) + " " 
-    feature_vector += str(JCMatrix[node1][node2])+ " "
-    feature_vector += str(CNMatrix[node1][node2])+ " "
-    feature_vector += str(PAMatrix[node1][node2]) + " "
-    feature_vector += str(SPMatrix[node1][node2]) + " "
-    feature_vector += str(betweenness[(node1,node2)]) + " "
-    feature_vector += str(dailyRate[node1]) + " "
+    feature_vector += str(AAMatrix[nodei][nodej]) + " "
+    feature_vector += str(JCMatrix[nodei][nodej]) + " "
+    feature_vector += str(CNMatrix[nodei][nodej]) + " "
+    feature_vector += str(PAMatrix[nodei][nodej]) + " "
+    feature_vector += str(SPMatrix[nodei][nodej]) + " "
+    feature_vector += str(betweenness[(nodei, nodej)]) + " "
+    feature_vector += str(dailyRate[nodei]) + " "
 
     return feature_vector
 
@@ -79,44 +70,46 @@ def WeightMovingAverageTimeSeriesRate(graph,date):
         n = 0
         new_date = int(baseDate) + n
         while new_date <= int(date):
-            new_graph = Graph.Read_GraphML("Trades-Network/trades-timestamped-2009-12-"+str(new_date)+".graphml")
-            try:
+            new_graph = Graph.Read_GraphML("Data/trades-timestamped-2009-12-"+str(new_date)+".graphml")
+            if (v < new_graph.vcount()):
+
                 index = (new_graph.vs[v]).index
                 if n == 0:
-                    dailyRate[v] = dailyRate[v] + alpha * new_graph.degree(index,mode='OUT')
+                    dailyRate[v] = dailyRate[v] + alpha * new_graph.degree(index, mode='OUT')
                 if n == 1:
-                    dailyRate[v] = dailyRate[v] + beta* new_graph.degree(index,mode='OUT')
+                    dailyRate[v] = dailyRate[v] + beta * new_graph.degree(index, mode='OUT')
                 if n == 2:
-                    dailyRate[v] = dailyRate[v] + gamma* new_graph.degree(index,mode='OUT')
-            except ValueError:
+                    dailyRate[v] = dailyRate[v] + gamma * new_graph.degree(index, mode='OUT')
+
+            else:
                 dailyRate[v] = dailyRate[v] + 0
+
             n += 1
             new_date = int(baseDate) + n
         dailyForecast[v] = dailyRate[v] / n
     return dailyForecast
 
 
-for date in range (30):
+for date in range(5, 30):
 
-    DataGraph=Graph.Read_GraphML("Trades-Network/trades-timestamped-2009-12-"+str(date)+".graphml")
-    print "trades-timestamped-2009-12-"+str(date)+".graphml"
+    DataGraph = Graph.Read_GraphML("Data/trades-timestamped-2009-12-"+str(date)+".graphml")
+    print("trades-timestamped-2009-12-"+str(date)+".graphml")
 
     feature_vector = ""
-    AAMatrix,JCMatrix,CNMatrix,PAMatrix,SPMatrix,betweenness,dailyRate=CreateFeatureMatrix(DataGraph,date)
+    AAMatrix, JCMatrix, CNMatrix, PAMatrix, SPMatrix, betweenness, dailyRate = FeatureMatrix(DataGraph, date)
     AA = DataGraph.get_adjacency()
-
-    if(date<=24):
-        DataSetFile = open("Data/TrainDataSet_Trades_Network.txt","a")
-        print "TrainDataSet_Trades_Network.txt for day",date
+    if(date <= 24):
+        DataSetFile = open("./TrainTest/TrainDataSet_Trades_Network.txt", "a")
+        print("TrainDataSet_Trades_Network.txt for day", date)
     else:
-        DataSetFile = open("Data/TestingDataSet_Trades_Network.txt","a")
-        print "TestingDataSet_Trades_Network.txt for day",date
+        DataSetFile = open("./TrainTest/TestingDataSet_Trades_Network.txt", "a")
+        print("TestingDataSet_Trades_Network.txt for day", date)
 
 
-    for i in range(DataGraph.vcount()):
+    for i in range(DataGraph.vcount()) :
         for j in range(DataGraph.vcount()):
             if (i!=j):
-                feature_vector = CreateFeatureVector(i,j,AAMatrix,JCMatrix,CNMatrix,PAMatrix,SPMatrix,betweenness,dailyRate)
+                feature_vector = FeatureVector(i, j, AAMatrix, JCMatrix, CNMatrix, PAMatrix, SPMatrix, betweenness, dailyRate)
                 if AA[i][j] == 0:
                     DataSetFile.write(feature_vector+"0\n")
                 else:
@@ -125,3 +118,13 @@ for date in range (30):
 
 
 
+min_max_scaler = preprocessing.MinMaxScaler()
+
+Train_scaled = min_max_scaler.fit_transform(pd.read_csv("./Data/TrainDataSet_Trades_Network.txt", sep=" "))
+TrainDataFrame = pd.DataFrame(Train_scaled)
+TrainDataFrame.to_csv("./Data/dtrain_Trades_Network.csv", sep=" ", index=False, header=False)
+
+
+Test_scaled = min_max_scaler.fit_transform(pd.read_csv("./Data/TestingDataSet_Trades_Network.txt", sep=" "))
+TestDataFrame = pd.DataFrame(Test_scaled)
+TestDataFrame.to_csv("./Data/dtest_Trades_Network.csv", sep=" ", index=False, header=False)
