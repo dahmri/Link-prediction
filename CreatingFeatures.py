@@ -11,6 +11,10 @@ from sklearn.model_selection import train_test_split
 
 
 def FeatureMatrix(graph, date):
+    """
+    Creating Features from a grpah :
+    adamic_adar, jaccard_coefficient, common_neighbors, preferential_attachment, shortest_path, betweenness_centrality and TimeSeriesRate (Weight Moving Average)
+    """
 
     AAMatrix = []
     AAMatrix = NetworkFeatures.adamic_adar_score(graph)
@@ -37,7 +41,9 @@ def FeatureMatrix(graph, date):
     return AAMatrix, JCMatrix, CNMatrix, PAMatrix, SPMatrix, betweenness, dailyRate
 
 def FeatureVector(nodei, nodej, AAMatrix, JCMatrix, CNMatrix, PAMatrix, SPMatrix, betweenness, dailyRate):
-
+    """
+    Creating a Feature Vector for a pair of nodes : nodei and nodej
+    """
     feature_vector = ""
 
     feature_vector += str(AAMatrix[nodei][nodej]) + " "
@@ -51,6 +57,9 @@ def FeatureVector(nodei, nodej, AAMatrix, JCMatrix, CNMatrix, PAMatrix, SPMatrix
     return feature_vector
 
 def WeightMovingAverageTimeSeriesRate(graph,date):
+    """
+    Computing a daily Forecast from a graph using Weight Moving Average rate
+    """
 
     move = 3
     alpha = 0.2
@@ -90,6 +99,15 @@ def WeightMovingAverageTimeSeriesRate(graph,date):
     return dailyForecast
 
 
+
+
+
+
+
+
+
+
+
 for date in range(5, 30):
 
     DataGraph = Graph.Read_GraphML("Data/trades-timestamped-2009-12-"+str(date)+".graphml")
@@ -115,7 +133,6 @@ for date in range(5, 30):
                 else:
                     DataSetFile.write(feature_vector+"1\n")
     DataSetFile.close()
-
 
 
 min_max_scaler = preprocessing.MinMaxScaler()
