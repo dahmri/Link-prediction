@@ -5,7 +5,7 @@ import numpy as np
 
 def adamic_adar_score(graph):
     """
-    Computing Adar-Adamic similarity matrix for an adjacency matrix
+    Computing Adar-Adamic similarity matrix from a graph
     """
 
     N = graph.vcount()
@@ -16,7 +16,7 @@ def adamic_adar_score(graph):
 
 def betweenness_centrality_score(graph):
     """
-    Computes betweenness_centrality matrix
+    Computing betweenness_centrality matrix from a graph
     """
 
     BC = np.zeros((graph.ecount(),graph.ecount()))
@@ -32,7 +32,7 @@ def betweenness_centrality_score(graph):
 
 def common_neighbors_score(graph):
     """
-    Computes common_neighbors matrix
+    Computing common_neighbors matrix from a graph
     """
     n = graph.vcount()
     common_neis = np.zeros((n, n))
@@ -51,7 +51,7 @@ def common_neighbors_score(graph):
 
 def jaccard_coefficient_score(graph):
     """
-    Computes jaccard_coefficient matrix
+    Computing jaccard_coefficient matrix from a graph
     """
     N = graph.vcount()
     JC = np.zeros((N,N))
@@ -63,7 +63,7 @@ def jaccard_coefficient_score(graph):
 
 def preferential_attachment_score(graph):
     """
-    Computes preferential_attachment matrix
+    Computing preferential_attachment matrix from a graph
     """
     A = graph.get_adjacency()
     i_degree = np.zeros(A.shape[0])
@@ -78,7 +78,7 @@ def preferential_attachment_score(graph):
 
 def shortest_path(graph):
     """
-    Computes shortest_path matrix with dijkstra algorithm
+    Computing shortest_path matrix with dijkstra algorithm from a graph
     """
     N = graph.vcount()
     SP = np.zeros((N,N))
