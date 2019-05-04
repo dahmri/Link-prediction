@@ -121,9 +121,6 @@ def WeightMovingAverageTimeSeriesRate(graph, date):
                 if n == 2:
                     dailyRate[v] = dailyRate[v] + gamma * new_graph.degree(index, mode='OUT')
 
-            else:
-                dailyRate[v] = dailyRate[v] + 0
-
             n += 1
             new_date = baseDate + n
         dailyForecast[v] = dailyRate[v] / n
