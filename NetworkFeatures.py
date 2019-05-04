@@ -1,6 +1,7 @@
 import networkx as netx
 from itertools import combinations
 import numpy as np
+from igraph import Graph
 
 
 def adamic_adar_score(graph):
@@ -85,3 +86,45 @@ def shortest_path(graph):
 
     SP = graph.shortest_paths_dijkstra(source=None, target=None, weights=None, mode='ALL')
     return SP
+
+def WeightMovingAverageTimeSeriesRate(graph, date):
+
+    """
+    Computing a daily Forecast from a graph using Weight Moving Average rate
+    """
+
+    move = 3
+    alpha = 0.2
+    beta = 0.3
+    gamma = 0.5
+
+    dailyRate = np.zeros(graph.vcount())
+    dailyForecast = np.zeros(graph.vcount())
+
+    baseDate = 1
+    diff = date - baseDate
+    if diff > move:
+        baseDate = baseDate + (diff-move-1)
+
+    for v in range(graph.vcount()):
+        n = 0
+        new_date = baseDate + n
+        while new_date <= date:
+            new_graph = Graph.Read_GraphML("Data/trades-timestamped-2009-12-"+str(new_date)+".graphml")
+            if (v < new_graph.vcount()):
+
+                index = (new_graph.vs[v]).index
+                if n == 0:
+                    dailyRate[v] = dailyRate[v] + alpha * new_graph.degree(index, mode='OUT')
+                if n == 1:
+                    dailyRate[v] = dailyRate[v] + beta * new_graph.degree(index, mode='OUT')
+                if n == 2:
+                    dailyRate[v] = dailyRate[v] + gamma * new_graph.degree(index, mode='OUT')
+
+            else:
+                dailyRate[v] = dailyRate[v] + 0
+
+            n += 1
+            new_date = baseDate + n
+        dailyForecast[v] = dailyRate[v] / n
+    return dailyForecast
