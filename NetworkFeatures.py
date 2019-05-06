@@ -104,14 +104,14 @@ def WeightMovingAverageTimeSeriesRate(graph, date):
     baseDate = 1
     diff = date - baseDate
     if diff > move:
-        baseDate = baseDate + (diff-move-1)
-
+        baseDate = baseDate + (diff-move)
+        
     for v in range(graph.vcount()):
         n = 0
         new_date = baseDate + n
         while new_date <= date:
             new_graph = Graph.Read_GraphML("Data/trades-timestamped-2009-12-"+str(new_date)+".graphml")
-            if (v < new_graph.vcount()):
+            if v < new_graph.vcount():
 
                 index = (new_graph.vs[v]).index
                 if n == 0:
@@ -123,5 +123,5 @@ def WeightMovingAverageTimeSeriesRate(graph, date):
 
             n += 1
             new_date = baseDate + n
-        dailyForecast[v] = dailyRate[v] / n
+        dailyForecast[v] = dailyRate[v]
     return dailyForecast
