@@ -28,6 +28,8 @@ def FeatureVector(nodei, nodej, AAMatrix, JCMatrix, CNMatrix, PAMatrix, SPMatrix
     """
 
     feature_vector = ""
+    if SPMatrix[nodei][nodej] == float('inf'):
+        SPMatrix[nodei][nodej] = 0
 
     feature_vector += str(AAMatrix[nodei][nodej]) + " "
     feature_vector += str(JCMatrix[nodei][nodej]) + " "
